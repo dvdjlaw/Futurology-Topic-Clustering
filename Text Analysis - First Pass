@@ -1,0 +1,59 @@
+# Initial pass at analyzing reddit data
+
+
+import csv
+import pandas as pd
+import string
+import math
+from collections import Counter
+from nltk import word_tokenize
+from nltk.corpus import stopwords
+from nltk import FreqDist
+from nltk import pos_tag
+with open('E:\\David\\Documents\\Northwestern\\W2018\\PRED 453\\Python Explore\\comments.csv', 'r',encoding='utf-8') as datafile:
+	df = pd.read_csv(datafile)
+	
+#print(df.head())
+
+# Tokenized comments
+df_tokenized=pd.DataFrame()
+df_tokenized['tokenized'] = df.apply(lambda row: word_tokenize(row['body_html']),axis=1)
+
+# Lengths of comments
+df_tokenized['length']=df_tokenized.apply(lambda row: len(row['tokenized']),axis=1)
+#print(df_tokenized.head())
+
+# Remove stopwords, punctuation, and numbers
+stop_words = set(stopwords.words('english'))
+df_tokenized['tokenized'] = df_tokenized.apply(lambda row: [word.lower() for word in row['tokenized']],axis=1) # Lower case first
+
+df_tokenized['tokenized'] = df_tokenized.apply(lambda row: [word for word in row['tokenized'] if not word in stop_words],axis=1) # Remove stopwords
+
+df_tokenized['tokenized'] = df_tokenized.apply(lambda row: [word for (word,pos) in pos_tag(row['tokenized']) if pos.startswith('NN')],axis=1) # Nouns only
+
+df_tokenized['tokenized'] = df_tokenized.apply(lambda row: [word for word in row['tokenized'] if word.isalpha()],axis=1) # Remove non-words
+print(df_tokenized.head())
+
+# All terms - frequency
+tf_all = df_tokenized.tokenized.sum()
+#print(tf_all[1:100])
+fd = FreqDist(tf_all)
+top_terms = pd.DataFrame(list(filter(lambda x: x[1]>=5, fd.items())),columns=['term','frequency'])
+
+#tm1 = top_terms.term[0]
+#print(tm1)
+
+#print(Counter(df_tokenized.tokenized[0])['me'])
+#print(len(df_tokenized.tokenized[0]))
+#print(math.log(df_tokenized.shape[0]/df_tokenized['tokenized'].apply(lambda row: tm1 in row).sum()))
+
+tf_list = list()
+idf_list = list()
+for idx, tm in enumerate(top_terms):
+	tf_list.append(Counter(df_tokenized.tokenized[idx])[tm]/len(df_tokenized.tokenized[idx]))
+	idf_list.append(math.log(df_tokenized.shape[0]/df_tokenized['tokenized'].apply(lambda row: tm in row).sum()))
+	
+print(tf_list)
+
+#print(top_terms.head())
+#fd.plot(100,cumulative=False)
