@@ -1,2 +1,3 @@
-# Sentiment analysis for reddit
-Analyzing reddit comments for toxicity
+# Reddit topic analysis of /r/futurology comments
+
+Clustering and topic analysis of comments in the /r/ futurology subreddit
