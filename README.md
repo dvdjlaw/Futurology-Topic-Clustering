@@ -1,2 +1,3 @@
-# Text analysis for reddit /r/Futurology
-Analyzing reddit comments for topic clusters
+Reddit topic analysis of /r/futurology comments
+
+Clustering and topic analysis of comments in the /r/ futurology subreddit
